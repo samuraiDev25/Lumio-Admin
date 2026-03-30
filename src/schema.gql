@@ -1,0 +1,216 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Тип аккаунта пользователя"""
+enum AccountType {
+  BUSINESS
+  PERSONAL
+}
+
+type DatabaseHealth {
+  responseTime: Float!
+  status: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type FileDto {
+  id: ID!
+  postId: String!
+  url: String!
+}
+
+"""Сортировка файлов"""
+enum FileSortBy {
+  DATE_ASC
+  DATE_DESC
+}
+
+type HealthResponse {
+  database: DatabaseHealth!
+  status: String!
+  timestamp: DateTime!
+  uptime: Float!
+}
+
+type Mutation {
+  banUser(banReason: String!, id: Int!): Boolean!
+  deleteUser(id: Int!): Boolean!
+  unbanUser(id: Int!): Boolean!
+}
+
+type PaginatedPaymentResponse {
+  items: [PaymentOutput!]!
+  page: Int!
+  pageSize: Int!
+  pagesCount: Int!
+  totalCount: Int!
+}
+
+type PaginatedPostResponse {
+  items: [Post!]!
+  page: Int!
+  pageSize: Int!
+  pagesCount: Int!
+  totalCount: Int!
+}
+
+type PaginatedUserResponse {
+  items: [User!]!
+  page: Int!
+  pageSize: Int!
+  pagesCount: Int!
+  totalCount: Int!
+}
+
+type PaymentDto {
+  amount: Float!
+  currency: String!
+  datePayment: DateTime!
+  endDate: DateTime!
+  id: ID!
+  paymentProvider: String!
+  subscriptionType: String
+}
+
+type PaymentOutput {
+  amount: Float!
+  autoRenewal: Boolean!
+  avatarUrl: String
+  cancelledAt: DateTime
+  createdAt: DateTime!
+  currency: String!
+  customPaymentId: String!
+  firstName: String
+  id: Int!
+  lastName: String
+  mainSubscriptionId: String
+  nextPaymentDate: DateTime
+  paymentProvider: String!
+  paymentsUrl: String!
+  periodEnd: DateTime
+  periodStart: DateTime
+  profileId: Int!
+  status: String!
+  stripePaymentCreatedAt: DateTime!
+  stripeSubscriptionId: String
+  subscriptionId: String
+  subscriptionType: String!
+  updatedAt: DateTime
+  username: String!
+}
+
+"""Сортировка платежей"""
+enum PaymentSortBy {
+  AMOUNT_ASC
+  AMOUNT_DESC
+  DATE_ASC
+  DATE_DESC
+  PAYMENT_METHOD_ASC
+  PAYMENT_METHOD_DESC
+  USERNAME_ASC
+  USERNAME_DESC
+}
+
+type Post {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String
+  files: [PostFile!]!
+  id: String!
+  user: User!
+  userId: Int!
+}
+
+type PostCreatedFile {
+  createdAt: DateTime!
+  id: Float!
+  url: String!
+}
+
+type PostCreatedSubscription {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String
+  files: [PostCreatedFile!]!
+  id: String!
+  user: PostCreatedUser!
+}
+
+type PostCreatedUser {
+  id: Float!
+}
+
+type PostFile {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  id: Int!
+  post: Post
+  postId: String!
+  url: String!
+}
+
+"""Сортировка постов"""
+enum PostSortBy {
+  DATE_ASC
+  DATE_DESC
+  USERNAME_ASC
+  USERNAME_DESC
+}
+
+type Query {
+  getPayments(pageNumber: Int! = 1, pageSize: Int! = 6, search: String, sortBy: PaymentSortBy! = DATE_DESC): PaginatedPaymentResponse!
+  getPosts(pageNumber: Int! = 1, pageSize: Int! = 20, search: String, sortBy: PostSortBy! = DATE_DESC): PaginatedPostResponse!
+
+  """Health check endpoint"""
+  health: HealthResponse!
+  user(id: Int!): User
+  users(pageNumber: Int = 1, pageSize: Int = 10, search: String, sortBy: UserSortBy = CREATED_AT_DESC): PaginatedUserResponse!
+
+  """Get service version"""
+  version: String!
+}
+
+type Subscription {
+  postCreated: PostCreatedSubscription!
+}
+
+type User {
+  banReason: String
+  bannedAt: DateTime
+  createdAt: DateTime
+  email: String!
+  files(limit: Int! = 20, page: Int! = 1, sortBy: FileSortBy! = DATE_DESC): [FileDto!]!
+  id: Int!
+  isBlocked: Boolean
+  payments(limit: Int! = 20, page: Int! = 1, sortBy: PaymentSortBy! = DATE_DESC): [PaymentDto!]!
+  profile: UserProfile
+  username: String!
+}
+
+type UserProfile {
+  aboutMe: String
+  accountType: AccountType!
+  avatarUrl: String
+  city: String
+  country: String
+  dateOfBirth: DateTime
+  firstName: String
+  id: Int!
+  lastName: String
+  profileFilled: Boolean!
+  profileFilledAt: DateTime
+  profileUpdatedAt: DateTime
+}
+
+"""Тип сортировки пользователей"""
+enum UserSortBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  USERNAME_ASC
+  USERNAME_DESC
+}
