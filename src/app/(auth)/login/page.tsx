@@ -1,4 +1,4 @@
-import { LoginForm } from '@/copmonents/loginForm/LoginForm';
+import { LoginForm } from '@/features/auth/ui/loginForm/LoginForm';
 
 export default function LoginPage() {
   return (
