@@ -3,7 +3,7 @@
 import s from './Header.module.scss';
 import Link from 'next/link';
 import {Container, Typography} from "@jstrommash/ui-kit-lumio";
-import {HeaderSelect} from "@/copmonents/header/ui/headerSelect/HeaderSelect";
+import {HeaderSelect} from "@/ widgets/Header/headerSelect/HeaderSelect";
 
 export const Header = () => {
 
@@ -11,7 +11,7 @@ export const Header = () => {
       <header className={s.header}>
         <Container>
           <div className={s.headerWrapper}>
-            <Link href={'/'}>
+            <Link href={'/public'}>
               <Typography variant={'large'} as={'span'} className={s.logo}>
                 L U M I O
                 <span className={s.admin}>
