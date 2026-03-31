@@ -1,11 +1,14 @@
 import type { PropsWithChildren } from 'react';
-import Navbar from '@/copmonents/NavBar';
+import Navbar from '@/ widgets/NavBar';
+import { AuthGuard } from '@/features/auth/ui/AuthGuard';
 
 export default function AdminLayout({ children }: PropsWithChildren) {
   return (
-    <div className="adminLayout">
-      <Navbar />
-      <div className="adminContent">{children}</div>
-    </div>
+    <AuthGuard>
+      <div className="adminLayout">
+        <Navbar />
+        <div className="adminContent">{children}</div>
+      </div>
+    </AuthGuard>
   );
 }
