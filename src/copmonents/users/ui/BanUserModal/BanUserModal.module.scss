@@ -1,0 +1,49 @@
+.modal {
+  color: var(--color-light-100);
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.text {
+  margin: 0;
+  color: var(--color-light-100);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.text span {
+  color: var(--color-light-100);
+  font-weight: 600;
+}
+
+.reasonField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reasonSelect {
+  padding: 6px 12px;
+  border: 1px solid var(--color-dark-100);
+  border-radius: 2px;
+  color: var(--color-light-100);
+  background: var(--color-dark-500);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.reasonSelect:focus {
+  border-color: var(--color-accent-500);
+  outline: none;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: space-around;
+}
