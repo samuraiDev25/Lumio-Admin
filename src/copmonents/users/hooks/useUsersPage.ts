@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { BAN_USER, DELETE_USER, GET_USERS, UNBAN_USER } from '@/queries/users';
 import { clearAccessToken, readAccessToken } from '@/shared/lib/auth';
-import { BAN_REASONS, BanReason, PAGE_SIZE } from '../model/constants';
+import { BAN_REASONS, BanReason, PAGE_SIZE } from '../model';
 import {
   BanUserData,
   BanUserVariables,
@@ -17,7 +17,7 @@ import {
   UnbanUserVariables,
   UserBlockedFilter,
   UserItem,
-} from '../model/types';
+} from '../model';
 
 export const useUsersPage = () => {
   const router = useRouter();

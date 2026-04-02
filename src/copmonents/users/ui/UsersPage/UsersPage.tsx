@@ -10,13 +10,9 @@ import {
   Search,
   TextField,
 } from '@jstrommash/ui-kit-lumio';
-import { useUsersPage } from '../../hooks/useUsersPage';
-import { formatDate } from '../../model/formatDate';
-import { formatUserId } from '../../model/formatUserId';
-import { getProfileLink } from '../../model/getProfileLink';
-import { UserBlockedFilter } from '../../model/types';
-import { BanUserModal } from '../BanUserModal/BanUserModal';
-import { DeleteUserModal } from '../DeleteUserModal/DeleteUserModal';
+import { useUsersPage } from '../../hooks';
+import { formatDate, formatUserId, getProfileLink, UserBlockedFilter } from '../../model';
+import { BanUserModal, DeleteUserModal } from '..';
 import s from './UsersPage.module.scss';
 
 export const UsersPage = () => {

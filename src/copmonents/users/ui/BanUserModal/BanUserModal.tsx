@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Modal } from '@jstrommash/ui-kit-lumio';
-import { BAN_REASONS, BanReason } from '../../model/constants';
+import { BAN_REASONS, BanReason } from '../../model';
 import s from './BanUserModal.module.scss';
 
 type BanUserModalProps = {
