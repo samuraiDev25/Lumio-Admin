@@ -2,7 +2,9 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""Тип аккаунта пользователя"""
+"""
+Тип аккаунта пользователя
+"""
 enum AccountType {
   BUSINESS
   PERSONAL
@@ -19,27 +21,75 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type FileDto {
+  """
+  Уникальный идентификатор файла
+  """
   id: ID!
+
+  """
+  ID поста
+  """
   postId: String!
+
+  """
+  URL файла
+  """
   url: String!
 }
 
-"""Сортировка файлов"""
+"""
+Сортировка файлов
+"""
 enum FileSortBy {
   DATE_ASC
   DATE_DESC
 }
 
 type HealthResponse {
+  """
+  Информация о состоянии БД
+  """
   database: DatabaseHealth!
+
+  """
+  Общий статус сервиса
+  """
   status: String!
+
+  """
+  Временная метка проверки
+  """
   timestamp: DateTime!
+
+  """
+  Время работы сервиса в секундах
+  """
   uptime: Float!
+}
+
+input LoginInput {
+  """
+  Email администратора
+  """
+  email: String!
+
+  """
+  Пароль администратора
+  """
+  password: String!
+}
+
+type LoginResponse {
+  """
+  JWT access токен для авторизации
+  """
+  accessToken: String!
 }
 
 type Mutation {
   banUser(banReason: String!, id: Int!): Boolean!
   deleteUser(id: Int!): Boolean!
+  login(input: LoginInput!): LoginResponse!
   unbanUser(id: Int!): Boolean!
 }
 
@@ -52,18 +102,56 @@ type PaginatedPaymentResponse {
 }
 
 type PaginatedPostResponse {
+  """
+  Список постов
+  """
   items: [Post!]!
+
+  """
+  Текущая страница
+  """
   page: Int!
+
+  """
+  Количество записей на странице
+  """
   pageSize: Int!
+
+  """
+  Общее количество страниц
+  """
   pagesCount: Int!
+
+  """
+  Общее количество записей
+  """
   totalCount: Int!
 }
 
 type PaginatedUserResponse {
+  """
+  Список пользователей
+  """
   items: [User!]!
+
+  """
+  Текущая страница
+  """
   page: Int!
+
+  """
+  Количество записей на странице
+  """
   pageSize: Int!
+
+  """
+  Общее количество страниц
+  """
   pagesCount: Int!
+
+  """
+  Общее количество записей
+  """
   totalCount: Int!
 }
 
@@ -78,33 +166,130 @@ type PaymentDto {
 }
 
 type PaymentOutput {
+  """
+  Сумма платежа
+  """
   amount: Float!
+
+  """
+  Автопродление
+  """
   autoRenewal: Boolean!
+
+  """
+  URL аватара
+  """
   avatarUrl: String
+
+  """
+  Дата отмены
+  """
   cancelledAt: DateTime
+
+  """
+  Дата создания
+  """
   createdAt: DateTime!
+
+  """
+  Валюта
+  """
   currency: String!
+
+  """
+  Кастомный ID платежа
+  """
   customPaymentId: String!
+
+  """
+  Имя
+  """
   firstName: String
+
+  """
+  Уникальный идентификатор платежа
+  """
   id: Int!
+
+  """
+  Фамилия
+  """
   lastName: String
+
+  """
+  ID основной подписки
+  """
   mainSubscriptionId: String
+
+  """
+  Дата следующего платежа
+  """
   nextPaymentDate: DateTime
+
+  """
+  Платежный провайдер
+  """
   paymentProvider: String!
+
+  """
+  URL для оплаты
+  """
   paymentsUrl: String!
+
+  """
+  Конец периода
+  """
   periodEnd: DateTime
+
+  """
+  Начало периода
+  """
   periodStart: DateTime
+
+  """
+  ID профиля
+  """
   profileId: Int!
+
+  """
+  Статус платежа
+  """
   status: String!
+
+  """
+  Дата создания в Stripe
+  """
   stripePaymentCreatedAt: DateTime!
+
+  """
+  ID Stripe подписки
+  """
   stripeSubscriptionId: String
+
+  """
+  ID подписки
+  """
   subscriptionId: String
+
+  """
+  Тип подписки
+  """
   subscriptionType: String!
+
+  """
+  Дата обновления
+  """
   updatedAt: DateTime
+
+  """
+  Имя пользователя
+  """
   username: String!
 }
 
-"""Сортировка платежей"""
+"""
+Сортировка платежей
+"""
 enum PaymentSortBy {
   AMOUNT_ASC
   AMOUNT_DESC
@@ -117,12 +302,39 @@ enum PaymentSortBy {
 }
 
 type Post {
+  """
+  Дата создания
+  """
   createdAt: DateTime!
+
+  """
+  Дата удаления
+  """
   deletedAt: DateTime
+
+  """
+  Описание поста
+  """
   description: String
+
+  """
+  Файлы поста
+  """
   files: [PostFile!]!
+
+  """
+  Уникальный идентификатор поста
+  """
   id: String!
+
+  """
+  Автор поста
+  """
   user: User!
+
+  """
+  ID автора поста
+  """
   userId: Int!
 }
 
@@ -146,15 +358,40 @@ type PostCreatedUser {
 }
 
 type PostFile {
+  """
+  Дата создания
+  """
   createdAt: DateTime!
+
+  """
+  Дата удаления
+  """
   deletedAt: DateTime
+
+  """
+  Уникальный идентификатор файла
+  """
   id: Int!
+
+  """
+  Пост, к которому относится файл
+  """
   post: Post
+
+  """
+  ID поста
+  """
   postId: String!
+
+  """
+  URL файла
+  """
   url: String!
 }
 
-"""Сортировка постов"""
+"""
+Сортировка постов
+"""
 enum PostSortBy {
   DATE_ASC
   DATE_DESC
@@ -163,15 +400,35 @@ enum PostSortBy {
 }
 
 type Query {
-  getPayments(pageNumber: Int! = 1, pageSize: Int! = 6, search: String, sortBy: PaymentSortBy! = DATE_DESC): PaginatedPaymentResponse!
-  getPosts(pageNumber: Int! = 1, pageSize: Int! = 20, search: String, sortBy: PostSortBy! = DATE_DESC): PaginatedPostResponse!
+  getPayments(
+    pageNumber: Int! = 1
+    pageSize: Int! = 6
+    search: String
+    sortBy: PaymentSortBy! = DATE_DESC
+  ): PaginatedPaymentResponse!
+  getPosts(
+    pageNumber: Int! = 1
+    pageSize: Int! = 20
+    search: String
+    sortBy: PostSortBy! = DATE_DESC
+  ): PaginatedPostResponse!
 
-  """Health check endpoint"""
+  """
+  Health check endpoint
+  """
   health: HealthResponse!
   user(id: Int!): User
-  users(pageNumber: Int = 1, pageSize: Int = 10, search: String, sortBy: UserSortBy = CREATED_AT_DESC): PaginatedUserResponse!
+  users(
+    blockedFilter: UserBlockedFilter
+    pageNumber: Int = 1
+    pageSize: Int = 10
+    search: String
+    sortBy: UserSortBy = CREATED_AT_DESC
+  ): PaginatedUserResponse!
 
-  """Get service version"""
+  """
+  Get service version
+  """
   version: String!
 }
 
@@ -180,34 +437,123 @@ type Subscription {
 }
 
 type User {
+  """
+  Причина блокировки
+  """
   banReason: String
+
+  """
+  Дата блокировки
+  """
   bannedAt: DateTime
+
+  """
+  Дата регистрации
+  """
   createdAt: DateTime
+
+  """
+  Email пользователя
+  """
   email: String!
   files(limit: Int! = 20, page: Int! = 1, sortBy: FileSortBy! = DATE_DESC): [FileDto!]!
+
+  """
+  Уникальный идентификатор пользователя
+  """
   id: Int!
+
+  """
+  Заблокирован ли пользователь
+  """
   isBlocked: Boolean
   payments(limit: Int! = 20, page: Int! = 1, sortBy: PaymentSortBy! = DATE_DESC): [PaymentDto!]!
+
+  """
+  Профиль пользователя
+  """
   profile: UserProfile
+
+  """
+  Имя пользователя
+  """
   username: String!
 }
 
+"""
+Фильтр по статусу блокировки пользователя
+"""
+enum UserBlockedFilter {
+  ALL
+  BLOCKED
+  NOT_BLOCKED
+}
+
 type UserProfile {
+  """
+  О себе
+  """
   aboutMe: String
+
+  """
+  Тип аккаунта
+  """
   accountType: AccountType!
+
+  """
+  URL аватара
+  """
   avatarUrl: String
+
+  """
+  Город
+  """
   city: String
+
+  """
+  Страна
+  """
   country: String
+
+  """
+  Дата рождения
+  """
   dateOfBirth: DateTime
+
+  """
+  Имя
+  """
   firstName: String
+
+  """
+  Уникальный идентификатор профиля
+  """
   id: Int!
+
+  """
+  Фамилия
+  """
   lastName: String
+
+  """
+  Заполнен ли профиль
+  """
   profileFilled: Boolean!
+
+  """
+  Дата заполнения профиля
+  """
   profileFilledAt: DateTime
+
+  """
+  Дата обновления профиля
+  """
   profileUpdatedAt: DateTime
 }
 
-"""Тип сортировки пользователей"""
+"""
+Тип сортировки пользователей
+"""
 enum UserSortBy {
   CREATED_AT_ASC
   CREATED_AT_DESC

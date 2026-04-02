@@ -1,0 +1,8 @@
+.git
+.next
+.idea
+.codex
+node_modules
+dist
+coverage
+package-lock.json
