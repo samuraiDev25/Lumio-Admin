@@ -29,4 +29,3 @@ When working on UI components or stories, use the Storybook MCP tools from this 
 - Use `get-documentation` or `get-documentation-for-story` to confirm props, examples, and existing stories before editing.
 - Use `get-storybook-story-instructions` when creating or updating stories so new stories follow current Storybook guidance.
 - Use `run-story-tests` after story changes when Storybook test coverage is relevant.
-

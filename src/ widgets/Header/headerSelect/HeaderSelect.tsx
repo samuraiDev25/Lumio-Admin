@@ -26,8 +26,7 @@ export function HeaderSelect() {
     return () => document.removeEventListener('mousedown', handlePointerDown);
   }, []);
 
-  const selectedLanguage =
-    languageOptions.find(option => option.value === language) ?? languageOptions[0];
+  const selectedLanguage = languageOptions.find((option) => option.value === language) ?? languageOptions[0];
   const SelectedIcon = selectedLanguage.icon;
 
   const selectLanguage = (value: string) => {
@@ -42,7 +41,7 @@ export function HeaderSelect() {
         aria-haspopup="listbox"
         className={s.trigger}
         type="button"
-        onClick={() => setIsOpen(current => !current)}
+        onClick={() => setIsOpen((current) => !current)}
       >
         <span className={s.value}>
           <SelectedIcon />
@@ -53,7 +52,7 @@ export function HeaderSelect() {
 
       {isOpen && (
         <div className={s.content} role="listbox">
-          {languageOptions.map(option => {
+          {languageOptions.map((option) => {
             const Icon = option.icon;
             const isSelected = option.value === language;
 

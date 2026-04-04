@@ -7,12 +7,8 @@ export const USER_LIST_ITEM_FRAGMENT = gql`
     email
     createdAt
     isBlocked
-    banReason
-    bannedAt
     profile {
       avatarUrl
-      city
-      country
     }
   }
 `;
@@ -21,11 +17,13 @@ export const GET_USERS = gql`
   ${USER_LIST_ITEM_FRAGMENT}
   query GetUsers(
     $pageNumber: Int = 1
-    $pageSize: Int = 10
+    $pageSize: Int = 8
+    $blockedFilter: UserBlockedFilter = ALL
     $search: String
     $sortBy: UserSortBy = CREATED_AT_DESC
   ) {
     users(
+      blockedFilter: $blockedFilter
       pageNumber: $pageNumber
       pageSize: $pageSize
       search: $search
@@ -48,5 +46,23 @@ export const GET_USER_BY_ID = gql`
     user(id: $id) {
       ...UserListItem
     }
+  }
+`;
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: Int!) {
+    deleteUser(id: $id)
+  }
+`;
+
+export const BAN_USER = gql`
+  mutation BanUser($id: Int!, $banReason: String!) {
+    banUser(id: $id, banReason: $banReason)
+  }
+`;
+
+export const UNBAN_USER = gql`
+  mutation UnbanUser($id: Int!) {
+    unbanUser(id: $id)
   }
 `;
