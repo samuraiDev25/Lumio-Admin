@@ -2,29 +2,28 @@
 
 import s from './Header.module.scss';
 import Link from 'next/link';
-import {Container, Typography} from "@jstrommash/ui-kit-lumio";
-import {HeaderSelect} from "@/ widgets/Header/headerSelect/HeaderSelect";
+import { Container, Typography } from '@jstrommash/ui-kit-lumio';
+import { HeaderSelect } from '@/ widgets/Header/headerSelect/HeaderSelect';
 
 export const Header = () => {
-
   return (
-      <header className={s.header}>
-        <Container>
-          <div className={s.headerWrapper}>
-            <Link href={'/public'}>
-              <Typography variant={'large'} as={'span'} className={s.logo}>
-                L U M I O
-                <span className={s.admin}>
+    <header className={s.header}>
+      <Container>
+        <div className={s.headerWrapper}>
+          <Link href={'/users'}>
+            <Typography variant={'large'} as={'span'} className={s.logo}>
+              L U M I O
+              <span className={s.admin}>
                 Super<strong>Admin</strong>
               </span>
-              </Typography>
-            </Link>
+            </Typography>
+          </Link>
 
-            <div className={s.selectBox}>
-              <HeaderSelect />
-            </div>
+          <div className={s.selectBox}>
+            <HeaderSelect />
           </div>
-        </Container>
-      </header>
+        </div>
+      </Container>
+    </header>
   );
 };

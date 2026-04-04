@@ -7,7 +7,6 @@
 }
 
 .toolbar {
-
   display: flex;
   flex-direction: row;
   gap: 24px;
@@ -18,8 +17,7 @@
   align-items: center;
   border: 1px solid var(--color-dark-100);
   border-radius: 2px;
-  max-width: 644px
-
+  max-width: 644px;
 }
 
 .select {
@@ -30,7 +28,6 @@
   border: 1px solid var(--color-dark-100);
   background: var(--color-dark-500);
   max-width: 234px;
-
 }
 
 .summaryLabel {
@@ -52,17 +49,16 @@
   align-self: flex-start;
   padding: 0;
   border: 0;
-  color: #fff;
+  color: var(--color-light-100);
   background: transparent;
   font-size: 14px;
   cursor: pointer;
 }
 
 .tableCard {
-  overflow: hidden;
-  border: 1px solid #171717;
+  border: 1px solid var(--color-dark-500);
   border-radius: 2px;
-  background: #0d0d0d;
+  background: var(--color-dark-700);
 }
 
 .table {
@@ -71,25 +67,31 @@
 }
 
 .table thead {
-  background: #171717;
+  background: var(--color-dark-400);
 }
 
 .table th,
 .table td {
   padding: 16px 20px;
-  border-bottom: 1px solid #171717;
+  border-bottom: 1px solid var(--color-dark-500);
   text-align: left;
   white-space: nowrap;
 }
 
 .table th {
-  color: #8d9094;
+  color: var(--color-light-100);
   font-size: 14px;
   font-weight: 500;
 }
 
 .table td {
   font-size: 14px;
+}
+
+.profileLink {
+  color: var(--color-light-100);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .table tbody tr:last-child td {
@@ -101,6 +103,15 @@
   text-align: center !important;
 }
 
+.retryButton {
+  margin-left: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-accent-500, #73a5ff);
+  border-radius: 2px;
+  color: var(--color-light-100);
+  background: transparent;
+  cursor: pointer;
+}
 
 .actionsColumn,
 .actionsCell {
@@ -131,6 +142,11 @@
   cursor: pointer;
 }
 
+.moreButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .moreButton span {
   width: 4px;
   height: 4px;
@@ -146,12 +162,12 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  width: 178px;
+  min-width: 178px;
   min-height: 121px;
   padding: 8px;
-  border: 1px solid #4c4c4c;
+  border: 1px solid var(--color-dark-300);
   border-radius: 2px;
-  background: #171717;
+  background: var(--color-dark-500);
 }
 
 .menuItem {
@@ -162,11 +178,19 @@
   min-height: 32px;
   padding: 4px 8px;
   color: var(--color-light-100);
+  border: 0;
   border-radius: 2px;
+  background: transparent;
+  cursor: pointer;
 }
 
 .menuItem:hover {
   background: #212121;
+}
+
+.menuItem:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .menuItem :global(svg) {

@@ -3,12 +3,7 @@
 import type { FC } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  CreditCardOutline,
-  ImageOutline,
-  PersonOutline,
-  TrendingUpOutline,
-} from '@jstrommash/ui-kit-lumio';
+import { CreditCardOutline, ImageOutline, PersonOutline, TrendingUpOutline } from '@jstrommash/ui-kit-lumio';
 import s from './NavBar.module.scss';
 
 type NavItem = {
