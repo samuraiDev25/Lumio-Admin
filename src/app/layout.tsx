@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
 import '@jstrommash/ui-kit-lumio/styles.css';
 import './globals.scss';
-import { Header } from '@/copmonents/header/ui';
-import { ApolloAppProvider } from '@/lib/apollo/ApolloAppProvider';
+import { Header } from '@/ widgets/Header';
+import { ApolloAppProvider } from '@/shared/api/apollo/ApolloAppProvider';
 
 export const metadata: Metadata = {
   title: 'Lumio SuperAdmin',
