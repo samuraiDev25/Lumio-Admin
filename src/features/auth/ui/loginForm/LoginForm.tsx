@@ -43,7 +43,7 @@ export const LoginForm = () => {
 
   useEffect(() => {
     if (readAccessToken()) {
-      router.replace('/users');
+      router.replace('/login');
     }
   }, [router]);
 
