@@ -14,6 +14,7 @@ export const GET_PAYMENTS = gql`
       sortBy: $sortBy
     ) {
       items {
+        id
         amount
         avatarUrl
         username

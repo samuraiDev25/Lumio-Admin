@@ -1,0 +1,93 @@
+.page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  color: var(--color-light-100);
+}
+
+.headerControls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    
+    .checkbox {
+        margin-left: auto; // pushes checkbox to the right
+    }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--color-dark-400);
+}
+
+.table th,
+.table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-dark-500);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table th {
+  color: var(--color-light-100);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.table td {
+  font-size: 14px;
+}
+
+.stateCell {
+  color: var(--color-light-900);
+  text-align: center !important;
+}
+
+.actionsColumn,
+.actionsCell {
+  width: 56px;
+  text-align: center;
+}
+
+.actionsCell {
+  overflow: visible;
+}
+
+.pagination {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+
+.fullName {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    min-height: 60px;
+
+    .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        align-self: flex-start;
+        margin-top: 0;
+    }
+
+    .username {
+        margin: 0;
+        font-size: 14px;
+        flex: 1;
+        align-self: center;
+        line-height: 1.4;
+    }
+}
