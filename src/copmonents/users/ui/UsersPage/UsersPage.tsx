@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import {
+  ArrowIosDownOutline,
+  ArrowIosUp,
   Block,
   CheckmarkOutline,
   MoreHorizontalOutline,
@@ -11,7 +13,7 @@ import {
   TextField,
 } from '@jstrommash/ui-kit-lumio';
 import { useUsersPage } from '../../hooks';
-import { formatDate, formatUserId, getProfileLink, UserBlockedFilter } from '../../model';
+import { formatDate, formatUserId, getProfileLink, UserBlockedFilter, UserSortBy } from '../../model';
 import { BanUserModal, DeleteUserModal, UnBanUserModal } from '..';
 import s from './UsersPage.module.scss';
 import { clearAccessToken } from '@/shared/lib/auth';
@@ -32,6 +34,7 @@ export const UsersPage = () => {
     handleMoreInformation,
     handleOpenDeleteModal,
     handleSearchChange,
+    handleSortChange,
     handleStatusFilterChange,
     handleToggleBlockedState,
     handleUnbanUser,
@@ -46,6 +49,7 @@ export const UsersPage = () => {
     setOpenedMenuUserId,
     setPage,
     statusFilter,
+    sortBy,
     totalPages,
     userToBan,
     userToDelete,
@@ -53,6 +57,19 @@ export const UsersPage = () => {
     users,
     unbanningUser,
   } = useUsersPage();
+
+  const handleUsernameSortToggle = () => {
+    handleSortChange(sortBy === 'USERNAME_ASC' ? 'USERNAME_DESC' : 'USERNAME_ASC');
+  };
+
+  const handleDateSortToggle = () => {
+    handleSortChange(sortBy === 'CREATED_AT_DESC' ? 'CREATED_AT_ASC' : 'CREATED_AT_DESC');
+  };
+
+  const isUsernameSortActive = sortBy === 'USERNAME_ASC' || sortBy === 'USERNAME_DESC';
+  const isDateSortActive = sortBy === 'CREATED_AT_ASC' || sortBy === 'CREATED_AT_DESC';
+  const usernameSortDirection = sortBy === 'USERNAME_DESC' ? 'desc' : 'asc';
+  const dateSortDirection = sortBy === 'CREATED_AT_ASC' ? 'asc' : 'desc';
 
   if (!loading && hasError) {
     clearAccessToken();
@@ -86,9 +103,39 @@ export const UsersPage = () => {
           <thead>
             <tr>
               <th>User ID</th>
-              <th>Username</th>
+              <th>
+                <button
+                  aria-label={`Sort by username ${usernameSortDirection === 'asc' ? 'descending' : 'ascending'}`}
+                  className={s.sortButton}
+                  onClick={handleUsernameSortToggle}
+                  type="button"
+                >
+                  <span>Username</span>
+                  <span className={s.sortIcons}>
+                    <ArrowIosUp className={!isUsernameSortActive || usernameSortDirection === 'asc' ? s.sortIconActive : ''} />
+                    <ArrowIosDownOutline
+                      className={!isUsernameSortActive || usernameSortDirection === 'desc' ? s.sortIconActive : ''}
+                    />
+                  </span>
+                </button>
+              </th>
               <th>Profile link</th>
-              <th>Date added</th>
+              <th>
+                <button
+                  aria-label={`Sort by date added ${dateSortDirection === 'asc' ? 'descending' : 'ascending'}`}
+                  className={s.sortButton}
+                  onClick={handleDateSortToggle}
+                  type="button"
+                >
+                  <span>Date added</span>
+                  <span className={s.sortIcons}>
+                    <ArrowIosUp className={!isDateSortActive || dateSortDirection === 'asc' ? s.sortIconActive : ''} />
+                    <ArrowIosDownOutline
+                      className={!isDateSortActive || dateSortDirection === 'desc' ? s.sortIconActive : ''}
+                    />
+                  </span>
+                </button>
+              </th>
               <th>Status</th>
               <th aria-label="Actions" className={s.actionsColumn} />
             </tr>
@@ -187,7 +234,7 @@ export const UsersPage = () => {
 
       <div className={s.pagination}>
         <Pagination
-          key={`${statusFilter}-${searchValue}-${totalPages}`}
+          key={`${statusFilter}-${sortBy}-${searchValue}-${totalPages}`}
           initialPage={currentPage}
           initialPageSize={pageSize}
           onPageChange={setPage}

@@ -1,5 +1,7 @@
 export type UserBlockedFilter = 'ALL' | 'BLOCKED' | 'NOT_BLOCKED';
 
+export type UserSortBy = 'CREATED_AT_ASC' | 'CREATED_AT_DESC' | 'USERNAME_ASC' | 'USERNAME_DESC';
+
 export type UserProfile = {
   avatarUrl?: string | null;
 };
@@ -28,6 +30,7 @@ export type GetUsersVariables = {
   pageNumber: number;
   pageSize: number;
   search?: string;
+  sortBy?: UserSortBy;
 };
 
 export type DeleteUserData = {

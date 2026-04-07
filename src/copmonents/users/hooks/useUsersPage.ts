@@ -17,6 +17,7 @@ import {
   UnbanUserVariables,
   UserBlockedFilter,
   UserItem,
+  UserSortBy,
 } from '../model';
 
 export const useUsersPage = () => {
@@ -24,6 +25,7 @@ export const useUsersPage = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<UserBlockedFilter>('NOT_BLOCKED');
+  const [sortBy, setSortBy] = useState<UserSortBy>('CREATED_AT_DESC');
   const [openedMenuUserId, setOpenedMenuUserId] = useState<number | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserItem | null>(null);
   const [userToBan, setUserToBan] = useState<UserItem | null>(null);
@@ -31,6 +33,7 @@ export const useUsersPage = () => {
   const [banReason, setBanReason] = useState<BanReason>(BAN_REASONS[0]);
   const actionsRef = useRef<HTMLDivElement | null>(null);
   const searchValue = search.trim();
+  const normalizedSearchValue = searchValue.toLowerCase();
   const accessToken = readAccessToken();
   const hasAccessToken = Boolean(accessToken);
   const { data, error, loading, refetch } = useQuery<GetUsersData, GetUsersVariables>(GET_USERS, {
@@ -40,6 +43,7 @@ export const useUsersPage = () => {
       blockedFilter: statusFilter,
       pageNumber: page,
       pageSize: PAGE_SIZE,
+      sortBy,
       ...(searchValue ? { search: searchValue } : {}),
     },
   });
@@ -47,7 +51,10 @@ export const useUsersPage = () => {
   const [banUserMutation, { loading: banningUser }] = useMutation<BanUserData, BanUserVariables>(BAN_USER);
   const [unbanUserMutation, { loading: unbanningUser }] = useMutation<UnbanUserData, UnbanUserVariables>(UNBAN_USER);
 
-  const users = data?.users.items ?? [];
+  const users =
+    data?.users.items.filter((user) =>
+      normalizedSearchValue ? user.username.toLowerCase().startsWith(normalizedSearchValue) : true,
+    ) ?? [];
   const totalPages = Math.max(1, data?.users.pagesCount ?? 1);
   const currentPage = data?.users.page ?? page;
   const isActionPending = deletingUser || banningUser || unbanningUser;
@@ -80,6 +87,11 @@ export const useUsersPage = () => {
 
   const handleStatusFilterChange = (value: UserBlockedFilter) => {
     setStatusFilter(value);
+    setPage(1);
+  };
+
+  const handleSortChange = (value: UserSortBy) => {
+    setSortBy(value);
     setPage(1);
   };
 
@@ -179,6 +191,7 @@ export const useUsersPage = () => {
     handleMoreInformation,
     handleOpenDeleteModal,
     handleSearchChange,
+    handleSortChange,
     handleStatusFilterChange,
     handleToggleBlockedState,
     handleUnbanUser,
@@ -193,6 +206,7 @@ export const useUsersPage = () => {
     setOpenedMenuUserId,
     setPage,
     statusFilter,
+    sortBy,
     totalPages,
     userToBan,
     userToDelete,

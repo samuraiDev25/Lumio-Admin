@@ -14,4 +14,5 @@ export type {
   UserBlockedFilter,
   UserItem,
   UserProfile,
+  UserSortBy,
 } from './types';
