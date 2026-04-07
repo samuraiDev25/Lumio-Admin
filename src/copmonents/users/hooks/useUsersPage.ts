@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { BAN_USER, DELETE_USER, GET_USERS, UNBAN_USER } from '@/queries/users';
-import { clearAccessToken, readAccessToken } from '@/shared/lib/auth';
+import { readAccessToken } from '@/shared/lib/auth';
 import { BAN_REASONS, BanReason, PAGE_SIZE } from '../model';
 import {
   BanUserData,
@@ -27,6 +27,7 @@ export const useUsersPage = () => {
   const [openedMenuUserId, setOpenedMenuUserId] = useState<number | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserItem | null>(null);
   const [userToBan, setUserToBan] = useState<UserItem | null>(null);
+  const [userToUnban, setUserToUnban] = useState<UserItem | null>(null);
   const [banReason, setBanReason] = useState<BanReason>(BAN_REASONS[0]);
   const actionsRef = useRef<HTMLDivElement | null>(null);
   const searchValue = search.trim();
@@ -91,6 +92,8 @@ export const useUsersPage = () => {
     setBanReason(BAN_REASONS[0]);
   };
 
+  const closeUnbanModal = () => setUserToUnban(null);
+
   const handleOpenDeleteModal = (user: UserItem) => {
     setUserToDelete(user);
     closeActionsMenu();
@@ -99,6 +102,11 @@ export const useUsersPage = () => {
   const handleOpenBanModal = (user: UserItem) => {
     setUserToBan(user);
     setBanReason(BAN_REASONS[0]);
+    closeActionsMenu();
+  };
+
+  const handleOpenUnbanModal = (user: UserItem) => {
+    setUserToUnban(user);
     closeActionsMenu();
   };
 
@@ -133,26 +141,28 @@ export const useUsersPage = () => {
     closeBanModal();
   };
 
+  const handleUnbanUser = async () => {
+    if (!userToUnban) {
+      return;
+    }
+
+    await unbanUserMutation({
+      variables: {
+        id: userToUnban.id,
+      },
+    });
+
+    await refetch();
+    closeUnbanModal();
+  };
+
   const handleToggleBlockedState = async (user: UserItem) => {
     if (user.isBlocked) {
-      await unbanUserMutation({
-        variables: {
-          id: user.id,
-        },
-      });
-
-      await refetch();
-      closeActionsMenu();
-
+      handleOpenUnbanModal(user);
       return;
     }
 
     handleOpenBanModal(user);
-  };
-
-  const handleReturnToLogin = () => {
-    clearAccessToken();
-    router.replace('/login');
   };
 
   const handleMoreInformation = () => {
@@ -168,10 +178,10 @@ export const useUsersPage = () => {
     handleDeleteUser,
     handleMoreInformation,
     handleOpenDeleteModal,
-    handleReturnToLogin,
     handleSearchChange,
     handleStatusFilterChange,
     handleToggleBlockedState,
+    handleUnbanUser,
     hasError,
     isActionPending,
     loading,
@@ -186,9 +196,12 @@ export const useUsersPage = () => {
     totalPages,
     userToBan,
     userToDelete,
+    userToUnban,
     users,
     banningUser,
+    unbanningUser,
     closeBanModal,
     closeDeleteModal,
+    closeUnbanModal,
   };
 };

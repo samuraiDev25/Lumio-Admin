@@ -12,8 +12,10 @@ import {
 } from '@jstrommash/ui-kit-lumio';
 import { useUsersPage } from '../../hooks';
 import { formatDate, formatUserId, getProfileLink, UserBlockedFilter } from '../../model';
-import { BanUserModal, DeleteUserModal } from '..';
+import { BanUserModal, DeleteUserModal, UnBanUserModal } from '..';
 import s from './UsersPage.module.scss';
+import { clearAccessToken } from '@/shared/lib/auth';
+import router from 'next/router';
 
 export const UsersPage = () => {
   const {
@@ -22,16 +24,17 @@ export const UsersPage = () => {
     banningUser,
     closeBanModal,
     closeDeleteModal,
+    closeUnbanModal,
     currentPage,
     deletingUser,
     handleBanUser,
     handleDeleteUser,
     handleMoreInformation,
     handleOpenDeleteModal,
-    handleReturnToLogin,
     handleSearchChange,
     handleStatusFilterChange,
     handleToggleBlockedState,
+    handleUnbanUser,
     hasError,
     isActionPending,
     loading,
@@ -46,8 +49,15 @@ export const UsersPage = () => {
     totalPages,
     userToBan,
     userToDelete,
+    userToUnban,
     users,
+    unbanningUser,
   } = useUsersPage();
+
+  if (!loading && hasError) {
+    clearAccessToken();
+    router.replace('/login');
+  }
 
   return (
     <section className={s.page}>
@@ -80,7 +90,7 @@ export const UsersPage = () => {
               <th>Profile link</th>
               <th>Date added</th>
               <th>Status</th>
-              <th className={s.actionsColumn} aria-label="Actions" />
+              <th aria-label="Actions" className={s.actionsColumn} />
             </tr>
           </thead>
 
@@ -89,17 +99,6 @@ export const UsersPage = () => {
               <tr>
                 <td className={s.stateCell} colSpan={6}>
                   Loading users...
-                </td>
-              </tr>
-            ) : null}
-
-            {!loading && hasError ? (
-              <tr>
-                <td className={s.stateCell} colSpan={6}>
-                  Failed to load users. Please sign in again.
-                  <button className={s.retryButton} onClick={handleReturnToLogin} type="button">
-                    Return to login
-                  </button>
                 </td>
               </tr>
             ) : null}
@@ -212,6 +211,14 @@ export const UsersPage = () => {
         open={Boolean(userToBan)}
         reason={banReason}
         username={userToBan?.username}
+      />
+
+      <UnBanUserModal
+        isLoading={unbanningUser}
+        onCloseAction={closeUnbanModal}
+        onConfirmAction={() => void handleUnbanUser()}
+        open={Boolean(userToUnban)}
+        username={userToUnban?.username}
       />
     </section>
   );
