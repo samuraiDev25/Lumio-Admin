@@ -78,6 +78,7 @@ const DEFAULT_GRAPHQL_URI = 'https://admin-api.lumio.su/api/v1/graphql';
 
 const graphqlUri = process.env.NEXT_PUBLIC_BASE_API_URL ?? process.env.NEXT_PUBLIC_GRAPHQL_URL ?? DEFAULT_GRAPHQL_URI;
 
+
 const authLink = setContext((_, previousContext) => {
   const accessToken = readAccessToken();
 
