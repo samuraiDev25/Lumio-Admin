@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react';
 import s from './PaymentsPage.module.scss'
-
+import { useEffect, useMemo, useState } from 'react';
 import {
     Checkbox,
     Pagination,
@@ -12,7 +11,7 @@ import {
 } from '@jstrommash/ui-kit-lumio';
 import { GET_PAYMENTS } from '@/queries/payments';
 import { useQuery } from '@apollo/client/react';
-
+import { SortField, SortOrder, useMockDataPayments } from './useMockDataPayments';
 
 
 const SORT_BY = 'DATE_DESC' as const;
@@ -47,45 +46,29 @@ export type GetPaymentsVariables = {
 
 export const PaymentsPage = () => {
     const [searchUserName, setSearchUserName] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortConfig, setSortConfig] = useState<typeof SORT_BY>();
+    const [sortField, setSortField] = useState<SortField>('createdAt');    
+    const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
     const [checked, setChecked] = useState(true)
 
-    const [data, setData] = useState<PaymentOutput[]>([{
-        amount: 1, 
-        avatarUrl: '$', 
-        createdAt: '21:02:02',  
-        id: 1, 
-        status: '7 days', 
-        subscriptionType: 'Stripe', 
-        username: 'Ivan Ivanov'}]);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchUserName);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchUserName]);
 
     useEffect(() => {
-    // Имитация загрузки данных
-        setData([
-        { id: 1, 
-            username: 'Ivan Ivanov', 
-            amount: 50, 
-            subscriptionType: 'Stripe',  
-            createdAt: '12.02.02', 
-            status: '7 day', 
-            avatarUrl: '$',
-        },
-        ]);
-    }, []);
+        setCurrentPage(1);
+    }, [debouncedSearch]);
 
+    const data = useMockDataPayments(currentPage, PAGE_SIZE, debouncedSearch, sortField, sortOrder)
     
-const handleSearchChange = (value: string) => {
-    setSearchUserName(value);
-    setCurrentPage(1);
-};
-
-const onChangeChacked = () => {
-    setChecked(!checked)
-}
 // const queryVariables = useMemo<GetPaymentsVariables>(
 //     () => ({
-//         pageNumber: 1,
+//         pageNumber: currentPage,
 //         pageSize: PAGE_SIZE,
 //         search: searchUserName,
 //         sortBy: SORT_BY,
@@ -114,6 +97,29 @@ const onChangeChacked = () => {
 //   });
 // };
 
+const handleSearchChange = (value: string) => {
+    setSearchUserName(value);
+};
+
+const onChangeChacked = () => {
+    setChecked(!checked)
+}
+
+const handleSort = (field: SortField) => {
+        if (sortField === field) {
+            setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+        } else {
+            setSortField(field);
+            setSortOrder('DESC');
+        }
+        setCurrentPage(1); 
+    };
+
+    const getSortIcon = (field: SortField) => {
+        if (sortField !== field) return '⬍';
+        return sortOrder === 'ASC' ? '⬆' : '⬇';
+    };
+
 const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
@@ -133,7 +139,7 @@ console.log('data of payments:' + data)
                 className={s.search}
                 iconStart={<Search />}
                 onChange={(event) => handleSearchChange(event.currentTarget.value)}
-                placeholder="Search"
+                placeholder="Search by username..."
                 value={searchUserName}
             />
         </div>
@@ -141,16 +147,16 @@ console.log('data of payments:' + data)
         <table className={s.table}>
             <thead>
             <tr>
-                <th >Full Name ⬍</th>
-                <th >Date added ⬍</th>
-                <th >Amount, $ ⬍</th>
+                <th onClick={() => handleSort('username')} style={{ cursor: 'pointer' }}>Full Name {getSortIcon('username')}</th>
+                <th onClick={() => handleSort('createdAt')} style={{ cursor: 'pointer' }}>Date added {getSortIcon('createdAt')}</th>
+                <th onClick={() => handleSort('amount')} style={{ cursor: 'pointer' }}>Amount, $ {getSortIcon('amount')}</th>
                 <th >Subscription</th>
-                <th >Payment Method ⬍</th>
+                <th onClick={() => handleSort('subscriptionType')} style={{ cursor: 'pointer' }}>Payment Method {getSortIcon('subscriptionType')}</th>
                 <th className={s.actionsColumn} aria-label="Actions" />
             </tr>
             </thead>
             <tbody>
-            {data?.map((item) => (
+            {data?.payments.items.map((item) => (
                 <tr key={item.id}>
                 <td>
                     <div className={s.fullName}>
@@ -168,7 +174,7 @@ console.log('data of payments:' + data)
             </tbody>
         </table>
         <Pagination 
-            totalPages={1} 
+            totalPages={data?.payments.pagesCount} 
             initialPageSize={PAGE_SIZE}
             onPageChange={handlePageChange}
             initialPage={currentPage}
@@ -176,23 +182,3 @@ console.log('data of payments:' + data)
     </section>
     )
 }
-
-
-
-////////Описание
-// Как суперадмин я хочу просмотреть все платежи пользователей платформы.
-
-// Сценарий
-
-// Шаг	Описание	Примечание
-// 1	Суперадмин выбирает "Payments list"	
-
-// 2	Система отображает список платежей	Таблица содержит: фото пользователя, username, дату, сумму, подписку, метод оплаты. 
-// Отображаются 6 последних записей с пагинацией и поиском по username
-
-// 3	Суперадмин имеет возможность просмотреть большее количество записей в списке Пользователи, 
-// используя Пагинацию	На каждой странице по 6 записей
-
-// 4	Суперадмин может сортировать по: username, дате (Date added), сумме (Amount), методу оплаты (Payment Method)
-
-// 5	Суперадмин имеет возможность использовать поисковую строку для поиска по username	
