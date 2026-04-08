@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { BAN_USER, DELETE_USER, GET_USERS, UNBAN_USER } from '@/queries/users';
-import { clearAccessToken, readAccessToken } from '@/shared/lib/auth';
+import { readAccessToken } from '@/shared/lib/auth';
 import { BAN_REASONS, BanReason, PAGE_SIZE } from '../model';
 import {
   BanUserData,
@@ -17,6 +17,7 @@ import {
   UnbanUserVariables,
   UserBlockedFilter,
   UserItem,
+  UserSortBy,
 } from '../model';
 
 export const useUsersPage = () => {
@@ -24,12 +25,15 @@ export const useUsersPage = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<UserBlockedFilter>('NOT_BLOCKED');
+  const [sortBy, setSortBy] = useState<UserSortBy>('CREATED_AT_DESC');
   const [openedMenuUserId, setOpenedMenuUserId] = useState<number | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserItem | null>(null);
   const [userToBan, setUserToBan] = useState<UserItem | null>(null);
+  const [userToUnban, setUserToUnban] = useState<UserItem | null>(null);
   const [banReason, setBanReason] = useState<BanReason>(BAN_REASONS[0]);
   const actionsRef = useRef<HTMLDivElement | null>(null);
   const searchValue = search.trim();
+  const normalizedSearchValue = searchValue.toLowerCase();
   const accessToken = readAccessToken();
   const hasAccessToken = Boolean(accessToken);
   const { data, error, loading, refetch } = useQuery<GetUsersData, GetUsersVariables>(GET_USERS, {
@@ -39,6 +43,7 @@ export const useUsersPage = () => {
       blockedFilter: statusFilter,
       pageNumber: page,
       pageSize: PAGE_SIZE,
+      sortBy,
       ...(searchValue ? { search: searchValue } : {}),
     },
   });
@@ -46,7 +51,10 @@ export const useUsersPage = () => {
   const [banUserMutation, { loading: banningUser }] = useMutation<BanUserData, BanUserVariables>(BAN_USER);
   const [unbanUserMutation, { loading: unbanningUser }] = useMutation<UnbanUserData, UnbanUserVariables>(UNBAN_USER);
 
-  const users = data?.users.items ?? [];
+  const users =
+    data?.users.items.filter((user) =>
+      normalizedSearchValue ? user.username.toLowerCase().startsWith(normalizedSearchValue) : true,
+    ) ?? [];
   const totalPages = Math.max(1, data?.users.pagesCount ?? 1);
   const currentPage = data?.users.page ?? page;
   const isActionPending = deletingUser || banningUser || unbanningUser;
@@ -82,6 +90,11 @@ export const useUsersPage = () => {
     setPage(1);
   };
 
+  const handleSortChange = (value: UserSortBy) => {
+    setSortBy(value);
+    setPage(1);
+  };
+
   const closeActionsMenu = () => setOpenedMenuUserId(null);
 
   const closeDeleteModal = () => setUserToDelete(null);
@@ -91,6 +104,8 @@ export const useUsersPage = () => {
     setBanReason(BAN_REASONS[0]);
   };
 
+  const closeUnbanModal = () => setUserToUnban(null);
+
   const handleOpenDeleteModal = (user: UserItem) => {
     setUserToDelete(user);
     closeActionsMenu();
@@ -99,6 +114,11 @@ export const useUsersPage = () => {
   const handleOpenBanModal = (user: UserItem) => {
     setUserToBan(user);
     setBanReason(BAN_REASONS[0]);
+    closeActionsMenu();
+  };
+
+  const handleOpenUnbanModal = (user: UserItem) => {
+    setUserToUnban(user);
     closeActionsMenu();
   };
 
@@ -133,30 +153,32 @@ export const useUsersPage = () => {
     closeBanModal();
   };
 
+  const handleUnbanUser = async () => {
+    if (!userToUnban) {
+      return;
+    }
+
+    await unbanUserMutation({
+      variables: {
+        id: userToUnban.id,
+      },
+    });
+
+    await refetch();
+    closeUnbanModal();
+  };
+
   const handleToggleBlockedState = async (user: UserItem) => {
     if (user.isBlocked) {
-      await unbanUserMutation({
-        variables: {
-          id: user.id,
-        },
-      });
-
-      await refetch();
-      closeActionsMenu();
-
+      handleOpenUnbanModal(user);
       return;
     }
 
     handleOpenBanModal(user);
   };
 
-  const handleReturnToLogin = () => {
-    clearAccessToken();
-    router.replace('/login');
-  };
-
-  const handleMoreInformation = () => {
-    router.replace('/user/id');
+  const handleMoreInformation = (userId: number) => {
+    router.push(`/users/${userId}`);
   };
 
   return {
@@ -168,10 +190,11 @@ export const useUsersPage = () => {
     handleDeleteUser,
     handleMoreInformation,
     handleOpenDeleteModal,
-    handleReturnToLogin,
     handleSearchChange,
+    handleSortChange,
     handleStatusFilterChange,
     handleToggleBlockedState,
+    handleUnbanUser,
     hasError,
     isActionPending,
     loading,
@@ -183,12 +206,16 @@ export const useUsersPage = () => {
     setOpenedMenuUserId,
     setPage,
     statusFilter,
+    sortBy,
     totalPages,
     userToBan,
     userToDelete,
+    userToUnban,
     users,
     banningUser,
+    unbanningUser,
     closeBanModal,
     closeDeleteModal,
+    closeUnbanModal,
   };
 };
