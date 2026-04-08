@@ -112,7 +112,9 @@ export const UsersPage = () => {
                 >
                   <span>Username</span>
                   <span className={s.sortIcons}>
-                    <ArrowIosUp className={!isUsernameSortActive || usernameSortDirection === 'asc' ? s.sortIconActive : ''} />
+                    <ArrowIosUp
+                      className={!isUsernameSortActive || usernameSortDirection === 'asc' ? s.sortIconActive : ''}
+                    />
                     <ArrowIosDownOutline
                       className={!isUsernameSortActive || usernameSortDirection === 'desc' ? s.sortIconActive : ''}
                     />
@@ -215,7 +217,7 @@ export const UsersPage = () => {
                           <button
                             className={s.menuItem}
                             disabled={isActionPending}
-                            onClick={handleMoreInformation}
+                            onClick={() => handleMoreInformation(user.id)}
                             role="menuitem"
                             type="button"
                           >

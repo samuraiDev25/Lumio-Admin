@@ -177,8 +177,8 @@ export const useUsersPage = () => {
     handleOpenBanModal(user);
   };
 
-  const handleMoreInformation = () => {
-    router.replace('/user/id');
+  const handleMoreInformation = (userId: number) => {
+    router.push(`/users/${userId}`);
   };
 
   return {
