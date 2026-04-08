@@ -1,7 +1,8 @@
 @import 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
+
 :root {
   --font-family-primary: 'Inter', sans-serif;
-  --app-max-width: 1200px;
+  --app-max-width: 1440px;
   --app-surface: var(--color-dark-500);
   --app-bg: var(--color-dark-300);
   --app-border: var(--color-dark-300);
@@ -31,27 +32,30 @@ a {
 }
 
 .appShell {
-  min-height: 100vh;
+  max-height: 100vh;
 }
 
 .pageContent {
   width: min(var(--app-max-width), calc(100% - 32px));
-  margin-left: calc(var(--sidebar-width) + 40px);
+  margin: 0 auto;
   padding: 32px 0 48px;
 }
 
 .loginPage {
-  display: grid;
-  place-items: start center;
-  min-height: calc(100vh - 72px - 32px);
-  padding-top: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
 }
 
 .adminLayout {
-  display: grid;
-  grid-template-columns: 980px minmax(0, 1fr);
-  gap: 32px;
-  align-items: start;
+  width: 100%;
+  margin-left: calc(var(--sidebar-width) + 20px);
+}
+
+.adminContent {
+  max-width: 1100px;
+  display: flex;
 }
 
 .adminSection {
@@ -72,18 +76,13 @@ a {
 }
 
 @media (max-width: 900px) {
-  .adminLayout {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
   .pageContent {
-    width: min(var(--app-max-width), calc(100% - 220px));
+    width: min(var(--app-max-width), calc(100% - 24px));
     padding-top: 24px;
+    padding-bottom: 32px;
   }
 
-  .adminSection {
-    padding: 24px;
-    border-radius: 20px;
+  .adminLayout {
+    margin-left: 0;
   }
 }
