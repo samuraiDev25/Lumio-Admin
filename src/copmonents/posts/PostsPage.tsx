@@ -39,7 +39,7 @@ function formatPostDate(iso: string): string {
 }
 
 type PostFile = { url?: string | null };
-type PostUser = { id?: string | number | null; username?: string | null };
+type PostUser = { id?: string | number | null; username?: string | null; avatarUrl?: string | null };
 
 type PostItem = {
   id: string | number;
@@ -222,7 +222,7 @@ export const PostsPage = () => {
           className={s.search}
           iconStart={<Search />}
           onChange={event => setSearchInput(event.currentTarget.value)}
-          placeholder="Search by username"
+          placeholder="Search"
           value={searchInput}
         />
       </div>
@@ -239,6 +239,7 @@ export const PostsPage = () => {
         <div className={s.list}>
           {posts.map(post => {
             const imageUrl = post.files?.[0]?.url;
+            const avatarUrl = post.user?.avatarUrl;
             return (
               <article className={s.card} key={String(post.id)}>
                 <div className={s.thumb}>
@@ -249,10 +250,14 @@ export const PostsPage = () => {
                   ) : null}
                 </div>
                 <div className={s.body}>
-                  <div className={s.meta}>
-                    <span className={s.username}>{post.user?.username ?? '—'}</span>
-                    <span className={s.date}>{formatPostDate(post.createdAt)}</span>
+                  <div className={s.avatar}>
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- remote avatar URL from GraphQL
+                      <img alt="" src={avatarUrl} />
+                    ) : null}
                   </div>
+                  <span className={s.username}>{post.user?.username ?? '—'}</span>
+                  <span className={s.date}>{formatPostDate(post.createdAt)}</span>
                   <p className={s.description}>{post.description ?? '—'}</p>
                 </div>
               </article>
