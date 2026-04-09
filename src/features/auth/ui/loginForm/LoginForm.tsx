@@ -43,7 +43,7 @@ export const LoginForm = () => {
 
   useEffect(() => {
     if (readAccessToken()) {
-      router.replace('/users');
+      router.replace('/login');
     }
   }, [router]);
 
@@ -86,7 +86,7 @@ export const LoginForm = () => {
         <TextField
           type="email"
           label="Email"
-          placeholder="Epam@epam.com"
+          placeholder="xxxxx@xxxxx.com"
           autoComplete="email"
           errorMessage={errors.email?.message}
           {...register('email', {
@@ -101,12 +101,8 @@ export const LoginForm = () => {
         <TextField
           type={showPassword ? 'text' : 'password'}
           label="Password"
-          placeholder="**********"
-          iconEnd={
-            <span className={s['custom-icon-end']}>
-              {showPassword ? <EyeOutline /> : <EyeOffOutline />}
-            </span>
-          }
+          placeholder="xxxxxx"
+          iconEnd={<span className={s['custom-icon-end']}>{showPassword ? <EyeOutline /> : <EyeOffOutline />}</span>}
           onEndIconClick={() => setShowPassword((prev) => !prev)}
           errorMessage={errors.password?.message}
           {...register('password', {
@@ -115,26 +111,14 @@ export const LoginForm = () => {
         />
       </div>
 
-      {errors.root && (
-        <div className={s['server-error']}>{errors.root.message}</div>
-      )}
+      {errors.root && <div className={s['server-error']}>{errors.root.message}</div>}
 
       <div className={s['auth-actions-block']}>
-
         <div className={s['submit-wrapper']}>
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            type="submit"
-            disabled={loading}
-          >
-            <span className={s['title-button']}>
-              {loading ? 'Signing In...' : 'Sign In'}
-            </span>
+          <Button variant="primary" size="lg" fullWidth type="submit" disabled={loading}>
+            <span className={s['title-button']}>{loading ? 'Signing In...' : 'Sign In'}</span>
           </Button>
         </div>
-
       </div>
     </form>
   );

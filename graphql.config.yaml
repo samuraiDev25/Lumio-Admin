@@ -1,1 +1,4 @@
-schema: http://localhost:3003/graphql
+schema:
+  - ./src/styles/schema.gql
+documents:
+  - ./src/**/*.{ts,tsx,gql,graphql}
