@@ -1,9 +1,8 @@
 
 // useMockDataPayments.ts
-import { GetPayments, PaymentOutput } from './PaymentsPage';
+import { GetPayments, PaymentOutput, SortOrder, SortField} from './model/types';
 
-export type SortField = 'username' | 'createdAt' | 'amount' | 'subscriptionType';
-export type SortOrder = 'ASC' | 'DESC';
+
 
 const MOCK_PAYMENTS: PaymentOutput[] = [
     { amount: 1, 

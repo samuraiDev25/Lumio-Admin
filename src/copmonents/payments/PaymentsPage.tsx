@@ -11,91 +11,26 @@ import {
 } from '@jstrommash/ui-kit-lumio';
 import { GET_PAYMENTS } from '@/queries/payments';
 import { useQuery } from '@apollo/client/react';
-import { SortField, SortOrder, useMockDataPayments } from './useMockDataPayments';
+import { useMockDataPayments } from './useMockDataPayments';
+import { PAGE_SIZE, } from './model/types';
+import { useDebounce } from './hooks/useDebounce';
+import { useSort } from './hooks/useSort';
+import { usePaymentsApollo } from './hooks/usePaymentsApollo';
 
-
-const SORT_BY = 'DATE_DESC' as const;
-const PAGE_SIZE = 6
-
-export type PaymentOutput = {
-    id: number;
-    amount: number;
-    avatarUrl: string;
-    username: string;
-    subscriptionType: string;
-    createdAt: string;
-    status: string;
-}
-
-export type GetPayments = {
-    payments: {
-        items: PaymentOutput[];
-        page: number;
-        pageSize: number;
-        pagesCount: number;
-        totalCount: number;
-    }
-}
-
-export type GetPaymentsVariables = {
-    pageNumber: number;
-    pageSize: number;
-    search: string;
-    sortBy: typeof SORT_BY;
-}
 
 export const PaymentsPage = () => {
     const [searchUserName, setSearchUserName] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortField, setSortField] = useState<SortField>('createdAt');    
-    const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
     const [checked, setChecked] = useState(true)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(searchUserName);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [searchUserName]);
+    const debouncedSearch = useDebounce(searchUserName, 500);
+    const { sortField, sortOrder, handleSort, getSortIcon } = useSort('createdAt', 'DESC');
+    const data = useMockDataPayments(currentPage, PAGE_SIZE, debouncedSearch, sortField, sortOrder)
+    // const { data: items, handlePageChangeApollo } = usePaymentsApollo(currentPage, searchUserName);
 
     useEffect(() => {
         setCurrentPage(1);
     }, [debouncedSearch]);
 
-    const data = useMockDataPayments(currentPage, PAGE_SIZE, debouncedSearch, sortField, sortOrder)
-    
-// const queryVariables = useMemo<GetPaymentsVariables>(
-//     () => ({
-//         pageNumber: currentPage,
-//         pageSize: PAGE_SIZE,
-//         search: searchUserName,
-//         sortBy: SORT_BY,
-//     }),
-//     [searchUserName, currentPage],
-// );
-
-// const { data, error, fetchMore, networkStatus } = useQuery<GetPayments, GetPaymentsVariables>(GET_PAYMENTS, {
-//     variables: queryVariables,
-//     fetchPolicy: 'cache-and-network',
-//     notifyOnNetworkStatusChange: true,
-// });
-
-// const handlePageChange = (page: number) => {
-//   fetchMore({
-//     variables: {
-//       pageNumber: page,
-//       pageSize: PAGE_SIZE,
-//       search: searchUserName,
-//       sortBy: SORT_BY,
-//     },
-//     updateQuery: (prev, { fetchMoreResult }) => {
-//       if (!fetchMoreResult) return prev;
-//       return fetchMoreResult; // Или merge для append
-//     }
-//   });
-// };
 
 const handleSearchChange = (value: string) => {
     setSearchUserName(value);
@@ -105,20 +40,6 @@ const onChangeChacked = () => {
     setChecked(!checked)
 }
 
-const handleSort = (field: SortField) => {
-        if (sortField === field) {
-            setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
-        } else {
-            setSortField(field);
-            setSortOrder('DESC');
-        }
-        setCurrentPage(1); 
-    };
-
-    const getSortIcon = (field: SortField) => {
-        if (sortField !== field) return '⬍';
-        return sortOrder === 'ASC' ? '⬆' : '⬇';
-    };
 
 const handlePageChange = (page: number) => {
         setCurrentPage(page);
