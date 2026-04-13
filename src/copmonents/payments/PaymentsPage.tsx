@@ -13,7 +13,6 @@ import { GET_PAYMENTS } from '@/queries/payments';
 import { useQuery } from '@apollo/client/react';
 import { SortField, SortOrder, useMockDataPayments } from './useMockDataPayments';
 
-
 const SORT_BY = 'DATE_DESC' as const;
 const PAGE_SIZE = 6
 
