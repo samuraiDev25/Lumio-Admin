@@ -15,6 +15,10 @@ export const GET_POSTS = gql`
         user {
           id
           username
+          isBlocked
+          profile {
+            avatarUrl
+          }
         }
       }
       page

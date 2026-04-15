@@ -1,11 +1,23 @@
 'use client';
 
 import { NetworkStatus } from '@apollo/client';
-import { useApolloClient, useQuery, useSubscription } from '@apollo/client/react';
-import { Search, TextField } from '@jstrommash/ui-kit-lumio';
+import { useApolloClient, useMutation, useQuery, useSubscription } from '@apollo/client/react';
+import { Block, CheckmarkOutline, Search, TextField } from '@jstrommash/ui-kit-lumio';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { BanUserModal, UnBanUserModal } from '@/copmonents/users';
+import {
+  BAN_REASONS,
+  BanReason,
+  BanUserData,
+  BanUserVariables,
+  GetUserByIdData,
+  GetUserByIdVariables,
+  UnbanUserData,
+  UnbanUserVariables,
+} from '@/copmonents/users/model';
 import { GET_POSTS, POST_CREATED_SUBSCRIPTION } from '@/queries/posts';
+import { BAN_USER, GET_USER_BY_ID, UNBAN_USER } from '@/queries/users';
 
 import s from './PostsPage.module.scss';
 
@@ -39,15 +51,23 @@ function formatPostDate(iso: string): string {
 }
 
 type PostFile = { url?: string | null };
-type PostUser = { id?: string | number | null; username?: string | null; avatarUrl?: string | null };
+
+type PostUser = {
+  id?: string | number | null;
+  isBlocked?: boolean | null;
+  profile?: {
+    avatarUrl?: string | null;
+  } | null;
+  username?: string | null;
+};
 
 type PostItem = {
-  id: string | number;
-  description?: string | null;
   createdAt: string;
-  userId?: string | number | null;
+  description?: string | null;
   files?: PostFile[] | null;
+  id: string | number;
   user?: PostUser | null;
+  userId?: string | number | null;
 };
 
 type GetPostsData = {
@@ -68,10 +88,10 @@ type GetPostsVariables = {
 };
 
 type PostCreatedPayload = {
-  id: string | number;
-  description?: string | null;
   createdAt: string;
+  description?: string | null;
   files?: { id?: string; url?: string | null }[] | null;
+  id: string | number;
   user?: PostUser | null;
 };
 
@@ -82,7 +102,12 @@ type PostCreatedSubscriptionData = {
 export const PostsPage = () => {
   const client = useApolloClient();
   const [searchInput, setSearchInput] = useState('');
+  const [banReason, setBanReason] = useState<BanReason>(BAN_REASONS[0]);
+  const [userToBan, setUserToBan] = useState<PostUser | null>(null);
+  const [userToUnban, setUserToUnban] = useState<PostUser | null>(null);
   const debouncedSearch = useDebouncedValue(searchInput, 500);
+  const [banUserMutation, { loading: banningUser }] = useMutation<BanUserData, BanUserVariables>(BAN_USER);
+  const [unbanUserMutation, { loading: unbanningUser }] = useMutation<UnbanUserData, UnbanUserVariables>(UNBAN_USER);
 
   const searchParam = debouncedSearch.trim() || undefined;
 
@@ -116,20 +141,47 @@ export const PostsPage = () => {
         return;
       }
 
-      const { pageSize, search, sortBy } = variablesRef.current;
-      const term = search?.trim().toLowerCase() ?? '';
-      if (term && !created.user?.username?.toLowerCase().includes(term)) {
-        return;
-      }
+      void (async () => {
+        const { pageSize, search, sortBy } = variablesRef.current;
+        const authorId = Number(created.user?.id);
+        let postUser = created.user ?? null;
 
-      const item: PostItem = {
-        id: created.id,
-        description: created.description,
-        createdAt: created.createdAt,
-        userId: created.user?.id,
-        files: (created.files ?? []).map(f => ({ url: f.url })),
-        user: created.user,
-      };
+        if (!Number.isNaN(authorId)) {
+          try {
+            const { data: authorData } = await client.query<GetUserByIdData, GetUserByIdVariables>({
+              query: GET_USER_BY_ID,
+              variables: { id: authorId },
+              fetchPolicy: 'network-only',
+            });
+
+            if (authorData?.user) {
+              postUser = {
+                id: authorData.user.id,
+                isBlocked: authorData.user.isBlocked,
+                profile: {
+                  avatarUrl: authorData.user.profile?.avatarUrl,
+                },
+                username: authorData.user.username,
+              };
+            }
+          } catch {
+            postUser = created.user ?? null;
+          }
+        }
+
+        const term = search?.trim().toLowerCase() ?? '';
+        if (term && !postUser?.username?.toLowerCase().includes(term)) {
+          return;
+        }
+
+        const item: PostItem = {
+          id: created.id,
+          description: created.description,
+          createdAt: created.createdAt,
+          userId: postUser?.id,
+          files: (created.files ?? []).map(file => ({ url: file.url })),
+          user: postUser,
+        };
 
       client.cache.updateQuery<GetPostsData | null, GetPostsVariables>(
         {
@@ -151,21 +203,117 @@ export const PostsPage = () => {
             return existing;
           }
 
+            return {
+              getPosts: {
+                ...existing.getPosts,
+                items: [item, ...existing.getPosts.items],
+                totalCount: existing.getPosts.totalCount + 1,
+              },
+            };
+          },
+        );
+      })();
+    },
+  });
+
+  const updateBlockedStateInCache = useCallback(
+    (userId: string, isBlocked: boolean) => {
+      const { pageSize, search, sortBy } = variablesRef.current;
+
+      client.cache.updateQuery<GetPostsData | null, GetPostsVariables>(
+        {
+          query: GET_POSTS,
+          variables: {
+            pageNumber: 1,
+            pageSize,
+            search: search || undefined,
+            sortBy,
+          },
+        },
+        existing => {
+          if (!existing?.getPosts) {
+            return existing;
+          }
+
           return {
             getPosts: {
               ...existing.getPosts,
-              items: [item, ...existing.getPosts.items],
-              totalCount: existing.getPosts.totalCount + 1,
+              items: existing.getPosts.items.map(post =>
+                String(post.user?.id) === userId
+                  ? {
+                      ...post,
+                      user: post.user
+                        ? {
+                            ...post.user,
+                            isBlocked,
+                          }
+                        : post.user,
+                    }
+                  : post,
+              ),
             },
           };
         },
       );
     },
-  });
+    [client],
+  );
+
+  const handleToggleBlockedState = (user: PostUser) => {
+    if (user.isBlocked) {
+      setUserToUnban(user);
+      return;
+    }
+
+    setUserToBan(user);
+    setBanReason(BAN_REASONS[0]);
+  };
+
+  const closeBanModal = () => {
+    setUserToBan(null);
+    setBanReason(BAN_REASONS[0]);
+  };
+
+  const closeUnbanModal = () => setUserToUnban(null);
+
+  const handleBanUser = async () => {
+    const userId = Number(userToBan?.id);
+
+    if (!userToBan || Number.isNaN(userId)) {
+      return;
+    }
+
+    await banUserMutation({
+      variables: {
+        banReason,
+        id: userId,
+      },
+    });
+
+    updateBlockedStateInCache(String(userId), true);
+    closeBanModal();
+  };
+
+  const handleUnbanUser = async () => {
+    const userId = Number(userToUnban?.id);
+
+    if (!userToUnban || Number.isNaN(userId)) {
+      return;
+    }
+
+    await unbanUserMutation({
+      variables: {
+        id: userId,
+      },
+    });
+
+    updateBlockedStateInCache(String(userId), false);
+    closeUnbanModal();
+  };
 
   const posts = data?.getPosts.items ?? [];
   const pageInfo = data?.getPosts;
-
+  const isActionPending = banningUser || unbanningUser;
   const hasMore = pageInfo ? pageInfo.page < pageInfo.pagesCount : false;
 
   const loadMore = useCallback(() => {
@@ -214,8 +362,6 @@ export const PostsPage = () => {
 
   return (
     <section className={`adminSection ${s.page}`}>
-      <h1>Posts</h1>
-      <p>Review content, moderate publications, and control the visibility of posts.</p>
 
       <div className={s.toolbar}>
         <TextField
@@ -239,7 +385,9 @@ export const PostsPage = () => {
         <div className={s.list}>
           {posts.map(post => {
             const imageUrl = post.files?.[0]?.url;
-            const avatarUrl = post.user?.avatarUrl;
+            const avatarUrl = post.user?.profile?.avatarUrl;
+            const avatarLabel = (post.user?.username ?? '?').slice(0, 2).toUpperCase();
+
             return (
               <article className={s.card} key={String(post.id)}>
                 <div className={s.thumb}>
@@ -249,14 +397,31 @@ export const PostsPage = () => {
                     <img alt="" src={imageUrl} />
                   ) : null}
                 </div>
+
                 <div className={s.body}>
-                  <div className={s.avatar}>
-                    {avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- remote avatar URL from GraphQL
-                      <img alt="" src={avatarUrl} />
-                    ) : null}
+                  <div className={s.userHead}>
+                    <div className={s.userInfo}>
+                      <div className={s.avatar}>
+                        {avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- remote avatar URL from GraphQL
+                          <img alt="" src={avatarUrl} />
+                        ) : (
+                          <span className={s.avatarFallback}>{avatarLabel}</span>
+                        )}
+                      </div>
+                      <span className={s.username}>{post.user?.username ?? '-'}</span>
+                    </div>
+
+                    <button
+                      className={s.banUser}
+                      disabled={isActionPending || !post.user?.id}
+                      onClick={() => post.user && handleToggleBlockedState(post.user)}
+                      type="button"
+                    >
+                      {post.user?.isBlocked ? <CheckmarkOutline /> : <Block />}
+                    </button>
                   </div>
-                  <span className={s.username}>{post.user?.username ?? '—'}</span>
+
                   <span className={s.date}>{formatPostDate(post.createdAt)}</span>
                   <p className={s.description}>{post.description ?? '—'}</p>
                 </div>
@@ -267,8 +432,26 @@ export const PostsPage = () => {
       ) : null}
 
       <div aria-hidden={!isFetchingMore} className={s.sentinel} ref={sentinelRef}>
-        {isFetchingMore ? 'Loading more…' : ''}
+        {isFetchingMore ? 'Loading more...' : ''}
       </div>
+
+      <BanUserModal
+        isLoading={banningUser}
+        onCloseAction={closeBanModal}
+        onConfirmAction={() => void handleBanUser()}
+        onReasonChangeAction={setBanReason}
+        open={Boolean(userToBan)}
+        reason={banReason}
+        username={userToBan?.username ?? undefined}
+      />
+
+      <UnBanUserModal
+        isLoading={unbanningUser}
+        onCloseAction={closeUnbanModal}
+        onConfirmAction={() => void handleUnbanUser()}
+        open={Boolean(userToUnban)}
+        username={userToUnban?.username ?? undefined}
+      />
     </section>
   );
 };
