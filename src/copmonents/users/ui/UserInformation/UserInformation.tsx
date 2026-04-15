@@ -10,6 +10,9 @@ import {clearAccessToken, readAccessToken} from '@/shared/lib/auth';
 import {formatDate, formatUserId, GetUserByIdData, GetUserByIdVariables} from '../../model';
 import {UserPostsGrid} from './UserPostsGrid/UserPostsGrid';
 import s from './UserInformation.module.scss';
+import {UserFollowers} from "@/copmonents/users/ui/UserInformation/UserFollowers/UserFollowers";
+import {PaymentsPage} from "@/copmonents/payments/PaymentsPage";
+import {UserFollowing} from "@/copmonents/users/ui/UserInformation/UserFollowing/UserFollowing";
 
 type Props = {
   userId: number;
@@ -62,17 +65,17 @@ export function UserInformation({userId}: Props) {
     {
       label: 'Payments',
       value: 'payments',
-      children: <div className={s.tabContent}>Payments content</div>,
+      children: <PaymentsPage />,
     },
     {
       label: 'Followers',
       value: 'followers',
-      children: <div className={s.tabContent}>Followers content</div>,
+      children: <UserFollowers />,
     },
     {
       label: 'Following',
       value: 'following',
-      children: <div className={s.tabContent}>Following content</div>,
+      children: <UserFollowing />,
     },
   ];
 
