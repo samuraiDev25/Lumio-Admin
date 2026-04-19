@@ -81,17 +81,49 @@
   top: 252px;
   left: 0;
   width: 234px;
+  padding: 0 12px;
+  box-sizing: border-box;
 }
 
 .avatar {
-  position: absolute;
-  left: 0;
-  top: 0;
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: #d9d9d9;
   overflow: hidden;
+}
+
+.userHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.banUser {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  color: var(--color-light-100);
+  background: transparent;
+  cursor: pointer;
+}
+
+.banUser:disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 
 .avatar img {
@@ -100,10 +132,21 @@
   object-fit: cover;
 }
 
+.avatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  color: #171717;
+  text-transform: uppercase;
+}
+
 .username {
-  position: absolute;
-  left: 48px;
-  top: 6px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 16px;
@@ -112,12 +155,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 186px;
+  min-width: 0;
 }
 
 .date {
   position: absolute;
-  left: 0;
+  left: 12px;
   top: 48px;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
@@ -128,16 +171,16 @@
 
 .description {
   position: absolute;
-  left: 0;
+  left: 12px;
   top: 67px;
-  width: 234px;
+  width: calc(100% - 24px);
   height: 72px;
   margin: 0;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 24px;
-  color: #ffffff;
+  color: var(--color-light-100);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
