@@ -287,7 +287,7 @@ export const PostsPage = () => {
       variables: {
         banReason,
         id: userId,
-      },// коммент
+      },
     });
 
     updateBlockedStateInCache(String(userId), true);
