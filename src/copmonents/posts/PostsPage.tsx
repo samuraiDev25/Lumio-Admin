@@ -287,7 +287,7 @@ export const PostsPage = () => {
       variables: {
         banReason,
         id: userId,
-      },
+      },//комент
     });
 
     updateBlockedStateInCache(String(userId), true);
@@ -425,7 +425,7 @@ export const PostsPage = () => {
                   <span className={s.date}>{formatPostDate(post.createdAt)}</span>
                   <p className={s.description}>{post.description ?? '—'}</p>
                 </div>
-              </article>//
+              </article>
             );
           })}
         </div>
