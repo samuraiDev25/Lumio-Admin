@@ -10,7 +10,7 @@ import {
     Search,
     TextField,
 } from '@jstrommash/ui-kit-lumio';
-import { PAGE_SIZE, SORT_BY, } from './model/types';
+import { PAGE_SIZE } from './model/types';
 import { usePaymentsApollo } from './hooks/usePaymentsApollo';
 
 
