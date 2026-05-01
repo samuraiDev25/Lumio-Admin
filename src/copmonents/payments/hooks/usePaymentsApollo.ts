@@ -1,54 +1,71 @@
 // apollo/paymentsApollo.ts
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client/react';
 import { GET_PAYMENTS } from '@/queries/payments';
 import { GetPayments, GetPaymentsVariables, PAGE_SIZE, SORT_BY } from '../model/types';
+import { useDebounce } from './useDebounce';
 
 
+export const usePaymentsApollo = () => {
+    const [sortBy, setSortBy] = useState<SORT_BY>('DATE_DESC')
+    const [search, setSearch] = useState('')
+    const [page, setPage] = useState(1)
+    const debouncedSearch = useDebounce(search, 500);
 
-export const usePaymentsApollo = (
-    currentPage: number,
-    searchUserName: string,
-) => {
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch]);
+
+    const handleSearchChange = (value: string) => {
+        setSearch(value);
+    };
+
+    const handleSort = (field: 'DATE' | 'AMOUNT' | 'USERNAME' | 'PAYMENT_METHOD' ) => {
+        const descKey = `${field}_DESC` as SORT_BY;
+        const ascKey = `${field}_ASC` as SORT_BY;
+        const newSortBy = sortBy === descKey ? ascKey : descKey;
+        setSortBy(newSortBy)
+        return newSortBy
+    };
+
+    const handlePageChangeApollo = (page: number) => {
+        setPage(page)
+    };
+
     const queryVariables = useMemo<GetPaymentsVariables>(
         () => ({
-            pageNumber: currentPage,
+            pageNumber: page,
             pageSize: PAGE_SIZE,
-            search: searchUserName,
-            sortBy: SORT_BY,
+            search: debouncedSearch,
+            sortBy,
         }),
-        [searchUserName, currentPage]
+        [debouncedSearch, page, sortBy]
     );
 
-    const { data, error, fetchMore, networkStatus } = useQuery<GetPayments, GetPaymentsVariables>(
+    const { data, error, fetchMore, loading } = useQuery<GetPayments, GetPaymentsVariables>(
         GET_PAYMENTS,
         {
             variables: queryVariables,
-            fetchPolicy: 'cache-and-network',
+        //     variables: {
+        //     pageNumber: page,
+        //     pageSize: PAGE_SIZE,
+        //     search: debouncedSearch,
+        //     sortBy,
+        // },
+            fetchPolicy: 'network-only',
             notifyOnNetworkStatusChange: true,
         }
     );
-
-    const handlePageChangeApollo = (page: number) => {
-        fetchMore({
-            variables: {
-                pageNumber: page,
-                pageSize: PAGE_SIZE,
-                search: searchUserName,
-                sortBy: SORT_BY,
-            },
-            updateQuery: (prev, { fetchMoreResult }) => {
-                if (!fetchMoreResult) return prev;
-                return fetchMoreResult;
-            },
-        });
-    };
 
     return {
         data,
         error,
         fetchMore,
-        networkStatus,
+        loading,
+        sortBy,
+        search,
         handlePageChangeApollo,
+        handleSearchChange,
+        handleSort,
     };
 };

@@ -1,49 +1,43 @@
 'use client'
 
 import s from './PaymentsPage.module.scss'
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
+    ArrowIosDownOutline,
+    ArrowIosUp,
     Checkbox,
     Pagination,
     Search,
     TextField,
-    Typography,
 } from '@jstrommash/ui-kit-lumio';
-import { GET_PAYMENTS } from '@/queries/payments';
-import { useQuery } from '@apollo/client/react';
-import { useMockDataPayments } from './useMockDataPayments';
-import { PAGE_SIZE, } from './model/types';
-import { useDebounce } from './hooks/useDebounce';
-import { useSort } from './hooks/useSort';
+import { PAGE_SIZE, SORT_BY, } from './model/types';
 import { usePaymentsApollo } from './hooks/usePaymentsApollo';
 
 
 export const PaymentsPage = () => {
-    const [searchUserName, setSearchUserName] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
     const [checked, setChecked] = useState(true)
-    const debouncedSearch = useDebounce(searchUserName, 500);
-    const { sortField, sortOrder, handleSort, getSortIcon } = useSort('createdAt', 'DESC');
-    const data = useMockDataPayments(currentPage, PAGE_SIZE, debouncedSearch, sortField, sortOrder)
-    // const { data: items, handlePageChangeApollo } = usePaymentsApollo(currentPage, searchUserName);
+    const { data: items, handlePageChangeApollo, loading, search, handleSearchChange, handleSort } = usePaymentsApollo();
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [debouncedSearch]);
-
-const handleSearchChange = (value: string) => {
-    setSearchUserName(value);
+const handleSearchByName = (name: string) => {
+    handleSearchChange(name);
 };
 
 const onChangeChacked = () => {
     setChecked(!checked)
 }
 
-const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-    };
+    if (!loading && !items?.getPayments?.items?.length) {
+        <tr>
+            <td colSpan={6}>
+                No payments found
+            </td>
+        </tr>
+    }
 
-console.log('data of payments:' + data)
+    const paymentsData = items?.getPayments 
+    const paymentsList = paymentsData?.items || [];
+    const totalPages = paymentsData?.pagesCount || 0;
+
 
     return (
     <section className={s.page}>
@@ -57,25 +51,76 @@ console.log('data of payments:' + data)
             <TextField 
                 className={s.search}
                 iconStart={<Search />}
-                onChange={(event) => handleSearchChange(event.currentTarget.value)}
-                placeholder="Search by username..."
-                value={searchUserName}
+                onChange={(event) => handleSearchByName(event.currentTarget.value)}
+                placeholder={"Search by username..."}
+                value={search}
             />
         </div>
 
         <table className={s.table}>
             <thead>
             <tr>
-                <th onClick={() => handleSort('username')} style={{ cursor: 'pointer' }}>Full Name {getSortIcon('username')}</th>
-                <th onClick={() => handleSort('createdAt')} style={{ cursor: 'pointer' }}>Date added {getSortIcon('createdAt')}</th>
-                <th onClick={() => handleSort('amount')} style={{ cursor: 'pointer' }}>Amount, $ {getSortIcon('amount')}</th>
+                <th>
+                    <button
+                    aria-label={`Sort by date`}
+                    className={s.sortButton}
+                    onClick={()=> handleSort('USERNAME')}
+                    type="button"
+                                >
+                        <span>Full Name</span>
+                        <span className={s.sortIcons}>
+                            <ArrowIosUp className={s.arrow} />
+                            <ArrowIosDownOutline className={s.arrow} />
+                        </span>
+                    </button>
+                </th>
+                <th><button
+                    aria-label={`Sort by username`}
+                    className={s.sortButton}
+                    onClick={() => handleSort('DATE')}
+                    type="button"
+                                >
+                        <span>Date added</span>
+                        <span className={s.sortIcons}>
+                            <ArrowIosUp className={s.arrow} />
+                            <ArrowIosDownOutline className={s.arrow} />
+                        </span>
+                    </button>
+                    </th>
+                <th>
+                    <button
+                    aria-label={`Sort by date`}
+                    className={s.sortButton}
+                    onClick={()=> handleSort('AMOUNT')}
+                    type="button"
+                                >
+                        <span>Amount, $</span>
+                        <span className={s.sortIcons}>
+                            <ArrowIosUp className={s.arrow} />
+                            <ArrowIosDownOutline className={s.arrow} />
+                        </span>
+                    </button>
+                    </th>
                 <th >Subscription</th>
-                <th onClick={() => handleSort('subscriptionType')} style={{ cursor: 'pointer' }}>Payment Method {getSortIcon('subscriptionType')}</th>
+                <th>
+                    <button
+                    aria-label={`Sort by date`}
+                    className={s.sortButton}
+                    onClick={()=> handleSort('PAYMENT_METHOD')}
+                    type="button"
+                                >
+                        <span>Payment Method</span>
+                        <span className={s.sortIcons}>
+                            <ArrowIosUp className={s.arrow} />
+                            <ArrowIosDownOutline className={s.arrow} />
+                        </span>
+                    </button>
+                    </th>
                 <th className={s.actionsColumn} aria-label="Actions" />
             </tr>
             </thead>
             <tbody>
-            {data?.payments.items.map((item) => (
+                {!loading && paymentsList.map((item) => (
                 <tr key={item.id}>
                 <td>
                     <div className={s.fullName}>
@@ -83,7 +128,7 @@ console.log('data of payments:' + data)
                         <p className={s.username}>{item.username}</p>
                     </div>
                 </td>
-                <td>{item.createdAt}</td>
+                <td>{new Date(item.createdAt).toLocaleDateString()}</td>
                 <td>{item.amount}</td>
                 <td>{item.status}</td>
                 <td>{item.subscriptionType}</td>
@@ -92,12 +137,14 @@ console.log('data of payments:' + data)
             ))}
             </tbody>
         </table>
+        {totalPages > 0 && (
         <Pagination 
-            totalPages={data?.payments.pagesCount} 
+            totalPages={totalPages} 
             initialPageSize={PAGE_SIZE}
-            onPageChange={handlePageChange}
-            initialPage={currentPage}
+            onPageChange={handlePageChangeApollo}
+            initialPage={paymentsData?.page}
         />
+        )}
     </section>
     )
 }
