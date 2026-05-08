@@ -391,7 +391,6 @@ export const PostsPage = () => {
             return (
               <article className={s.card} key={String(post.id)}>
                 <div className={s.thumb}>
-                  {/* Post media URLs come from the API; domains are not fixed at build time. */}
                   {imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element -- remote post URLs from GraphQL
                     <img alt="" src={imageUrl} />
