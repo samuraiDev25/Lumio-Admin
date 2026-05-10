@@ -5,7 +5,7 @@ pipeline {
     environment {
         ENV_TYPE = "production"
         PORT = 4264
-        NAMESPACE = "lumio-superadmin"
+        NAMESPACE = "lumio-su"
         REGISTRY_HOSTNAME = "senorian3"
         REGISTRY = "registry.hub.docker.com"
         PROJECT = "lumio-front-end-sa"
