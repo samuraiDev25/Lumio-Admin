@@ -33,6 +33,7 @@ yarn-error.log*
 # local tools / editor state
 .idea/
 .codex/
+AGENTS.md
 
 # env files (can opt-in for committing if needed)
 .env*

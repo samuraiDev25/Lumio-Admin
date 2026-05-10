@@ -118,8 +118,6 @@ export function UserPostsGrid({username}: UserPostsGridProps) {
           return (
             <div key={String(post.id)} className={s.postItem}>
               <div className={s.postImageContainer}>
-                {/* Post media URLs come from the API; domains are not fixed at build time. */}
-                {/* eslint-disable-next-line @next/next/no-img-element -- remote post URLs from GraphQL */}
                 <img alt={`${username} post`} className={s.postImage} loading="lazy" src={imageUrl} />
               </div>
             </div>
